@@ -110,20 +110,13 @@ class Dos
     }
     bool isRename()
     {
-        queue<string> q;
-        istringstream iss(command);
-        while(iss >> command)
-        {
-            q.push(command);
-        }
-        string temp = q.front();
-        q.pop();
+        size_t first = command.find(' ');
+        string temp = command.substr(0, first);
         if (temp == "rename")
         {
-            string name = q.front();
-            q.pop();
-            string newName = q.front();
-            q.pop();
+            size_t second = command.find(' ', first + 1);
+            string name = command.substr(first + 1, second - first - 1);
+            string newName = command.substr(second + 1, command.find(' ', second + 1));
             File* f = tree.current->findFile(name);
             if (f != nullptr)
             {
@@ -134,6 +127,149 @@ class Dos
                 cout << "File does not exist" << endl;
             }
 
+            return true;
+        }
+        return false;
+    }
+    bool isCopy()
+    {
+        size_t firstSpace = command.find_first_of(' ', 0);
+        string temp = command.substr(0, firstSpace);
+        if (temp == "copy")
+        {
+            int sizeStart = command.find(' ') + 1;
+            string name = command.substr(sizeStart, command.find(' ', sizeStart) - sizeStart);
+            File* f = tree.current->findFile(name);
+            if (f != nullptr)
+            {
+                string location = command.substr(command.find(' ', sizeStart) + 1);
+                string p = location.substr(0, location.find('\\') + 1);
+                if (p == "V:\\")
+                {
+                    Folder* fd = tree.current->findPath(location, tree.root);
+                    if (fd != nullptr)
+                    {
+                        fd->insertFile(name);
+                    }
+                    else cout << "Destination is not found" << endl;
+                }
+                else 
+                {
+                    Folder* fd = tree.current->findPath(tree.current -> path + location, tree.current);
+                    if (fd != nullptr)
+                    {
+                        fd -> insertFile(name);
+                    }
+                    else cout << "Destination is not found" << endl;
+                }
+
+            }
+            else
+            {
+                cout << "File does not exist" << endl;
+            }
+            return true;
+        }
+        return false;
+    }
+    bool isDel()
+    {
+        size_t first = command.find(' ');
+        string temp = command.substr(0, first);
+        if (temp == "del")
+        {
+            string name = command.substr(first + 1, command.length() - first);
+            File* f = tree.current->findFile(name);
+            if (f != nullptr)
+            {
+                tree.current->deleteFile(f);
+            }
+            else 
+            {
+                cout << "File does not Exist" << endl;
+            }
+            return true;
+        }
+        return false;
+    }
+    bool isMove()
+    {
+        size_t first = command.find(' ');
+        string temp = command.substr(0, first);
+        if (temp == "move")
+        {
+            int sizeStart = command.find(' ') + 1;
+            string name = command.substr(sizeStart, command.find(' ', sizeStart) - sizeStart);
+            File* f = tree.current->findFile(name);
+             if (f != nullptr)
+            {
+                string location = command.substr(command.find(' ', sizeStart) + 1);
+                string p = location.substr(0, location.find('\\') + 1);
+                if (p == "V:\\")
+                {
+                    Folder* fd = tree.current->findPath(location, tree.root);
+                    if (fd != nullptr)
+                    {
+                        fd->insertFile(name);
+                        tree.current->deleteFile(f);
+                    }
+                    else cout << "Destination is not found" << endl;
+                }
+                else 
+                {
+                    Folder* fd = tree.current->findPath(tree.current -> path + location, tree.current);
+                    if (fd != nullptr)
+                    {
+                        fd -> insertFile(name);
+                    }
+                    else cout << "Destination is not found" << endl;
+                }
+
+            }
+            else
+            {
+                cout << "File does not exist" << endl;
+            }
+            return true;
+        }
+        return false;
+    }
+    bool isFind()
+    {
+        size_t first = command.find(' ');
+        string temp = command.substr(0, first);
+        if (temp == "find")
+        {
+            int sizeStart = command.find(' ') + 1;
+            string location = command.substr(sizeStart, command.find(' ', sizeStart) - sizeStart);
+            string name = command.substr(command.find(' ', sizeStart) + 1);
+            Folder* fd = tree.current->findPath(location, tree.root);
+            if (fd != nullptr)
+            {
+                File* file = fd->findFile(name);
+                if (file != nullptr)
+                {
+                    cout << "File Exist" << endl;
+                }
+                else 
+                {
+                    cout <<"File does not Exist in that Directory" << endl;
+                }
+            }
+            else
+            {
+                cout << "Path is not found" << endl;
+            }
+            return true;
+        }
+        return false;
+    }
+    bool isFormat()
+    {
+        if (command == "format")
+        {
+            tree.current->removeDir(tree.root);
+            tree.current = tree.root;
             return true;
         }
         return false;
@@ -188,6 +324,34 @@ class Dos
         else if (isRename())
         {
             // rename the file
+        }
+        else if (isCopy())
+        {
+            // copy the file
+        }
+        else if(isDel())
+        {
+            // delete the file
+        }
+        else if(isMove())
+        {
+            // move the file
+        }
+        else if(isFind())
+        {
+            // find the file in provided path
+        }
+        else if(isFormat())
+        {
+            // Format the entire disk
+        }
+        else if(command == "pwd")
+        {
+            cout << tree.current->path << endl;
+        }
+        else if(command == "ver")
+        {
+            cout << "Dos Shell 2.0.7" << endl;
         }
         else
         {

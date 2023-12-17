@@ -34,9 +34,14 @@ class Folder
             if (path[path.length() - 1] != '\\')
             {
                 slash = 92;
-            }
                 Folder* temp = new Folder(name, this, path + slash + name);
                 subFolders.push_back(temp);
+            }
+            else
+            {
+                Folder* temp = new Folder(name, this, path + name);
+                subFolders.push_back(temp);
+            }
         }
         Folder* findFolder(string folderName)
         {
@@ -85,8 +90,11 @@ class Folder
                 delete i;
             }
             folder->files.clear();
-            folder->parent->subFolders.remove(folder);
-            delete folder;
+            if (folder->parent != nullptr)
+            {
+                folder->parent->subFolders.remove(folder);
+                delete folder;
+            }
         }
         File* findFile(string name)
         {
@@ -106,6 +114,38 @@ class Folder
             {
                 file -> name = newName;
             }
+        }
+        // void copy(File* f, string location)
+        // {
+        //     string p = location.substr(0, location.find('\\'));
+        //     if (p == "V:\\")
+        //     {
+                
+        //     }
+        //     else
+        //     {
+
+        //     }
+        // }
+        Folder* findPath(string location, Folder* curr)
+        {
+           if (location == curr -> path)
+           {
+             return curr;
+           }
+           for (Folder* f: curr -> subFolders)
+           {
+                Folder* result = findPath(location, f);
+                if (result != nullptr)
+                {
+                    return result;
+                }
+           }
+           return nullptr;
+        }
+        void deleteFile(File* f)
+        {
+            this->files.remove(f);
         }
 
 

@@ -8,9 +8,11 @@ class File
     private:
         string name;
         list<char> data;
+        string path;
     public:
-        File(string name = "")
+        File(string name = "", string path ="")
         {
             this -> name = name;
+            this -> path = path;
         }
 };
