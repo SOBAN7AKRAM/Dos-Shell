@@ -1,4 +1,6 @@
 #include <iostream>
+#include <sstream>
+#include <queue>
 #include "Tree.cpp"
 #include "Folder.cpp"
 #include "File.cpp"
@@ -67,6 +69,75 @@ class Dos
         }
         return false;
     }
+    bool isCreateFile()
+    {
+        string temp = command.substr(0, 6);
+        if (temp == "create")
+        {
+            string ext = command.substr(command.length() - 4, command.length());
+            if (ext == ".txt")
+            {
+                string name = command.substr(7, command.length() - 5);
+                tree.current -> insertFile(name);
+                return true;
+            }
+            else 
+            {
+                cout << "Invalid Extension!" << endl;
+                return false;
+            }
+        }
+        return false;
+    }
+    bool isRemoveDir()
+    {
+        string temp = command.substr(0, 5);
+        if (temp == "rmdir")
+        {
+            string folder = command.substr(6, command.length());
+            Folder* f = tree.current -> findFolder(folder);
+            if (f != nullptr)
+            {
+                tree.current->removeDir(f);
+            }
+            else 
+            {
+                cout << "Folder does not exist" << endl;
+            }
+            return true;
+        }
+        return false;
+    }
+    bool isRename()
+    {
+        queue<string> q;
+        istringstream iss(command);
+        while(iss >> command)
+        {
+            q.push(command);
+        }
+        string temp = q.front();
+        q.pop();
+        if (temp == "rename")
+        {
+            string name = q.front();
+            q.pop();
+            string newName = q.front();
+            q.pop();
+            File* f = tree.current->findFile(name);
+            if (f != nullptr)
+            {
+                tree.current->renameFile(f, newName);
+            }
+            else 
+            {
+                cout << "File does not exist" << endl;
+            }
+
+            return true;
+        }
+        return false;
+    }
     string getCommand()
     {
         string cmd = "";
@@ -105,6 +176,18 @@ class Dos
         else if (isPrintCurrentDir())
         {
             // print current directory files or folders
+        }
+        else if (isCreateFile())
+        {
+            // create a new text file
+        }
+        else if (isRemoveDir())
+        {
+            // remove the directory of current folder
+        }
+        else if (isRename())
+        {
+            // rename the file
         }
         else
         {

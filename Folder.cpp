@@ -11,8 +11,8 @@ class Folder
     private:
         string name;
         string time;
-        list<Folder*> subFolders = list<Folder*>();
-        list<File*> files = list<File*>();
+        list<Folder*> subFolders;
+        list<File*> files;
         Folder* parent;
         string path;
     public:
@@ -21,6 +21,8 @@ class Folder
             this->name = name;
             this->parent = parent;
             this->path = path;
+            subFolders = list<Folder*>();
+            files = list<File*>();
         }
         void insertSubFolder(string name)
         {
@@ -48,6 +50,11 @@ class Folder
             }
             return nullptr;
         }
+        void insertFile(string name)
+        {
+            File* temp = new File(name);
+            files.push_back(temp);
+        }
         void printCurrentPath()
         {
             cout << this -> path << endl;
@@ -58,6 +65,46 @@ class Folder
             for (it = subFolders.begin(); it != subFolders.end(); it++)
             {
                 cout << (*it) -> name << endl;
+            }
+            list<File*>::iterator fi;
+            for (fi = files.begin(); fi!= files.end(); fi++)
+            {
+                cout << (*fi) -> name << endl;
+            }
+        }
+        void removeDir(Folder* folder)
+        {
+            while (!folder->subFolders.empty())
+            {
+                Folder* f = folder->subFolders.front();
+                folder->subFolders.pop_front();
+                removeDir(f);
+            }
+            for (auto i: folder->files)
+            {
+                delete i;
+            }
+            folder->files.clear();
+            folder->parent->subFolders.remove(folder);
+            delete folder;
+        }
+        File* findFile(string name)
+        {
+            list<File*>::iterator it;
+            for (it = files.begin(); it != files.end(); it++)
+            {
+                if ((*it) -> name == name)
+                {
+                    return (*it);
+                }
+            }
+            return nullptr;
+        }
+        void renameFile(File* file, string newName)
+        {
+            if (file != nullptr)
+            {
+                file -> name = newName;
             }
         }
 
