@@ -4,6 +4,7 @@
 // #include "Dos.cpp"
 #include <Windows.h>
 #include <stack>
+#include <deque>
 #pragma once
 using namespace std;
 struct state
@@ -25,7 +26,8 @@ private:
     int currentRow, currentCol;
     string name;
     int size;
-    stack<state> undo;
+    deque<state> redo;
+    deque<state> undo;
 
 public:
     currentFile(string name = "")
@@ -179,7 +181,16 @@ public:
             }
             else if (GetAsyncKeyState(VK_CONTROL) && (GetAsyncKeyState('Z')))
             {
+                pushInRedo();
                 undoOneStep();
+                system("cls");
+                showText();
+                gotoxy(currentRow, currentCol);
+            }
+            else if (GetAsyncKeyState(VK_CONTROL) && (GetAsyncKeyState('Y')))
+            {
+                pushInUndo();
+                redoOneStep();
                 system("cls");
                 showText();
                 gotoxy(currentRow, currentCol);
@@ -190,7 +201,7 @@ public:
                 if (currentCol > 0 && citr != ritr->begin())
                 {
                     auto c = citr;
-                    pushInStack();
+                    pushInUndo();
                     citr--;
                     ritr->erase(c);
                     currentCol--;
@@ -206,6 +217,7 @@ public:
             else
             {
                 size++;
+                pushInUndo();
                 if (currentCol < ritr->size() - 1)
                 {
                     ritr->insert(citr, ch);
@@ -223,6 +235,7 @@ public:
                     cout << *citr;
                 }
             }
+            
         }
     }
     void insertText(char c)
@@ -249,7 +262,7 @@ public:
         HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
         SetConsoleCursorPosition(hOutput, cordinates);
     }
-    void pushInStack()
+    void pushInUndo()
     {
         state t;
         t.citr = this -> citr;
@@ -259,26 +272,58 @@ public:
         t.text = this -> text;
         if (undo.size() < 5)
         {
-            undo.push(t);
+            undo.emplace_back(t);
         }
         else 
         {
-            undo.pop();
-            undo.push(t);
+            undo.pop_front();
+            undo.emplace_back(t);
         }
     }
     void undoOneStep()
     {
         if (!undo.empty())
         {
-            state t = undo.top();
-            undo.pop();
+            state t = undo.back();
+            undo.pop_back();
             this -> currentRow = t.currentRow;
             this -> currentCol = t.currentCol;
             this -> text = t.text;
             this -> ritr = t.ritr;
             this -> citr = t.citr;
             size++;
+        }
+    }
+    void redoOneStep()
+    {
+        if (!redo.empty())
+        {
+            state t = redo.back();
+            redo.pop_back();
+            this -> currentRow = t.currentRow;
+            this -> currentCol = t.currentCol;
+            this -> text = t.text;
+            this -> ritr = t.ritr;
+            this -> citr = t.citr;
+            size++;
+        }
+    }
+    void pushInRedo()
+    {
+        state t;
+        t.citr = this -> citr;
+        t.ritr = this -> ritr;
+        t.currentCol = this -> currentCol;
+        t.currentRow = this -> currentRow;
+        t.text = this -> text;
+        if (redo.size() < 5)
+        {
+            redo.emplace_back(t);
+        }
+        else
+        {
+            redo.pop_front();
+            redo.emplace_back(t);
         }
     }
 };
