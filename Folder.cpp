@@ -115,18 +115,6 @@ class Folder
                 file -> name = newName;
             }
         }
-        // void copy(File* f, string location)
-        // {
-        //     string p = location.substr(0, location.find('\\'));
-        //     if (p == "V:\\")
-        //     {
-                
-        //     }
-        //     else
-        //     {
-
-        //     }
-        // }
         Folder* findPath(string location, Folder* curr)
         {
            if (location == curr -> path)
@@ -147,6 +135,5 @@ class Folder
         {
             this->files.remove(f);
         }
-
 
 };

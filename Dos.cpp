@@ -4,8 +4,23 @@
 #include "Tree.cpp"
 #include "Folder.cpp"
 #include "File.cpp"
+#include "currentFile.cpp"
 #pragma once
 using namespace std;
+void gotoxy(int x, int y)
+{
+    COORD cordinates;
+    cordinates.X = x;
+    cordinates.Y = y;
+    HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleCursorPosition(hOutput, cordinates);
+}
+void printName()
+{
+    system("cls");
+    gotoxy(40, 0);
+    cout << "M Soban Akram || 2022-CS-173 || BSc. Computer Science" << endl << endl << endl;
+}
 class Dos
 {
     // friend class Tree;
@@ -274,6 +289,23 @@ class Dos
         }
         return false;
     }
+    bool isEdit()
+    {
+        string temp = command.substr(0, command.find(' '));
+        if (temp == "edit")
+        {
+            string name = command.substr(command.find(' ') + 1, command.length());
+            File* f = tree.current->findFile(name);
+            if (f != nullptr)
+            {       
+                system("cls");
+                f->currFile->edit();
+                cout << endl;
+            }
+            return true;
+        }
+        return false;
+    }
     string getCommand()
     {
         string cmd = "";
@@ -344,6 +376,12 @@ class Dos
         else if(isFormat())
         {
             // Format the entire disk
+        }
+        else if(isEdit())
+        {
+            system("cls");
+            printName();
+            // Edit the file
         }
         else if(command == "pwd")
         {
